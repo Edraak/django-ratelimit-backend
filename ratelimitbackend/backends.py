@@ -33,25 +33,19 @@ class RateLimitMixin(object):
             counts = self.get_counters(request)
             if sum(counts.values()) >= self.requests:
                 logger.warning(
-                    u"Login rate-limit reached: username '{0}', IP {1}".format(
-                        username, self.get_ip(request),
+                    "Login rate-limit reached: username IP {0}".format(
+                        self.get_ip(request),
                     )
                 )
                 raise RateLimitException('Rate-limit reached', counts)
         else:
-            warnings.warn(u"No request passed to the backend, unable to "
-                          u"rate-limit. Username was '%s'" % username,
-                          stacklevel=2)
+            warnings.warn("No request passed to the backend, unable to "
+                          "rate-limit.", stacklevel=2)
         user = super(RateLimitMixin, self).authenticate(
             request=request, **kwargs
         )
         if user is None and request is not None:
-            logger.info(
-                u"Login failed: username '{0}', IP {1}".format(
-                    username,
-                    self.get_ip(request),
-                )
-            )
+            logger.info("Login failed: username IP {0}".format(self.get_ip(request)))
             cache_key = self.get_cache_key(request)
             self.cache_incr(cache_key)
         return user
